@@ -155,11 +155,11 @@ public class MineSweeperGame {
     /*
      * Game state may change after digging
      */
-    public GameState digAt(int row, int col) {
+    public boolean digAt(int row, int col) {
         Point digPoint = new Point(row, col);
 
         if (!pointIsValid(digPoint)) {
-            return state;
+            return false;
         }
 
         if (state == GameState.Waiting) {
@@ -173,7 +173,7 @@ public class MineSweeperGame {
             /*
              * The point was digged or game is not playing
              */
-            return state;
+            return false;
         }
 
         if (bombSet.contains(digPoint)) {
@@ -184,7 +184,8 @@ public class MineSweeperGame {
                     shownSet.add(p);
                 }
             }
-            return state;
+            flagSet.clear();
+            return true;
         }
 
         shownSet.add(digPoint);
@@ -208,14 +209,19 @@ public class MineSweeperGame {
             state = GameState.Win;
         }
 
-        return state;
+        return true;
     }
 
-    public void flagAt(int row, int col) {
+    public boolean isFlagged(int row, int col) {
+        Point flagPoint = new Point(row, col);
+        return flagSet.contains(flagPoint);
+    }
+
+    public boolean flagAt(int row, int col) {
         Point flagPoint = new Point(row, col);
 
         if (!pointIsValid(flagPoint)) {
-            return;
+            return false;
         }
 
         if (state == GameState.Waiting) {
@@ -228,13 +234,15 @@ public class MineSweeperGame {
         if (!shownSet.contains(flagPoint)) {
             flagSet.add(flagPoint);
         }
+
+        return true;
     }
 
-    public void unflagAt(int row, int col) {
+    public boolean unflagAt(int row, int col) {
         Point flagPoint = new Point(row, col);
 
         if (!pointIsValid(flagPoint)) {
-            return;
+            return false;
         }
 
         for (Point p : flagSet) {
@@ -243,6 +251,8 @@ public class MineSweeperGame {
                 break;
             }
         }
+
+        return true;
     }
 
     private void digExpand(Point p) {
