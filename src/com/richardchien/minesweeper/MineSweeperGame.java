@@ -1,4 +1,4 @@
-package com.richardchien;
+package com.richardchien.minesweeper;
 
 import java.util.*;
 
@@ -112,6 +112,7 @@ public class MineSweeperGame {
     /*
      * Prepare for a new game round
      */
+    @Deprecated
     public void startGame() {
         shownSet.clear();
         bombSet.clear();
@@ -152,6 +153,48 @@ public class MineSweeperGame {
         state = GameState.Waiting;
     }
 
+    public void prepareGame() {
+        shownSet.clear();
+        bombSet.clear();
+        flagSet.clear();
+
+        for (int i = 0; i < rowN; i++) {
+            for (int j = 0; j < colN; j++) {
+                map[i][j] = 0;
+            }
+        }
+    }
+
+    private void startGameAt(int row, int col) {
+        Random random = new Random();
+
+        int i = 0;
+        while (i < bombN) {
+            int newRow = random.nextInt(rowN);
+            int newCol = random.nextInt(colN);
+            if (map[newRow][newCol] != kMapBomb && !(newRow == row && newCol == col)) {
+                map[newRow][newCol] = kMapBomb;
+                Point newBomb = new Point(newRow, newCol);
+                bombSet.add(newBomb);
+
+                /*
+                 * Increase the count of squares around the bomb
+                 */
+                int r, c;
+                for (Point offset : next) {
+                    r = newRow + offset.getRow();
+                    c = newCol + offset.getCol();
+                    if (pointIsValid(new Point(r, c)) && map[r][c] != kMapBomb) {
+                        map[r][c]++;
+                    }
+                }
+            }
+            i = bombSet.size();
+        }
+
+        state = GameState.Playing;
+    }
+
     /*
      * Game state may change after digging
      */
@@ -166,7 +209,7 @@ public class MineSweeperGame {
             /*
              * Begin to play
              */
-            state = GameState.Playing;
+            startGameAt(row, col);
         }
 
         if (shownSet.contains(digPoint) || flagSet.contains(digPoint) || state != GameState.Playing) {
@@ -207,6 +250,9 @@ public class MineSweeperGame {
         sizeOfUnion = checkSet.size();
         if (sizeOfIntersection == 0 && sizeOfUnion == rowN * colN) {
             state = GameState.Win;
+            for (Point p : bombSet) {
+                flagSet.add(p);
+            }
         }
 
         return true;
@@ -228,7 +274,7 @@ public class MineSweeperGame {
             /*
              * Begin to play
              */
-            state = GameState.Playing;
+            startGameAt(row, col);
         }
 
         if (!shownSet.contains(flagPoint)) {

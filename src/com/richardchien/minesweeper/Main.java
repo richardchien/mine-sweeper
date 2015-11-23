@@ -1,4 +1,4 @@
-package com.richardchien;
+package com.richardchien.minesweeper;
 
 import java.util.Scanner;
 
@@ -9,8 +9,8 @@ public class Main {
     private static MineSweeperGame game;
 
     public static void main(String[] args) {
-        game = new MineSweeperGame(9, 9, 10);
-        game.startGame();
+        game = new MineSweeperGame(9, 9, 1);
+        game.prepareGame();
         printMap();
 
         while (game.getState() == MineSweeperGame.GameState.Playing
